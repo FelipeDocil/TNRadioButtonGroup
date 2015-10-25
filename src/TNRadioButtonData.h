@@ -12,7 +12,7 @@
 
 @property (nonatomic, copy) NSString *identifier;
 @property (nonatomic) NSInteger tag;
-@property (nonatomic, copy) NSString *labelText;
+@property (nonatomic, copy) NSAttributedString *labelText;
 @property (nonatomic) BOOL selected;
 
 @property (nonatomic, strong) UIFont *labelFont;
