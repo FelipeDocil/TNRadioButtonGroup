@@ -23,9 +23,9 @@ NSString *const SELECTED_RADIO_BUTTON_CHANGED = @"selectedRadioButtonChanged";
 
 #pragma mark - Initializers
 - (instancetype)initWithRadioButtonData:(NSArray *)radioButtonData layout:(TNRadioButtonGroupLayout)layout {
-    
+
     self = [super init];
-    
+
     if (self) {
         self.radioButtonData = radioButtonData;
         self.layout = layout;
@@ -33,14 +33,14 @@ NSString *const SELECTED_RADIO_BUTTON_CHANGED = @"selectedRadioButtonChanged";
 		self.itemsInsets = UIEdgeInsetsZero;
         self.multipleOptions = NO;
     }
-    
+
     return self;
 }
 
 #pragma mark - Setup
 - (void)create {
     [self createRadioButtons];
-    
+
     self.frame = CGRectMake(0, 0, self.widthOfComponent, self.heightOfComponent);
 }
 
@@ -51,77 +51,77 @@ NSString *const SELECTED_RADIO_BUTTON_CHANGED = @"selectedRadioButtonChanged";
 }
 
 - (void)createRadioButtons {
-    
+
     int xPos = _itemsInsets.left;
     int yPos = _itemsInsets.top;
     int maxHeight = 0;
     int i = 0;
-    
+
     NSMutableArray *tmp = [NSMutableArray new];
-    
+
     for (TNRadioButtonData *data in self.radioButtonData) {
-        
+
         TNRadioButton *radioButton = nil;
-        
+
         if( !data.labelFont) data.labelFont = self.labelFont;
         if( !data.labelActiveColor) data.labelActiveColor = self.textActiveColor;
         if( !data.labelPassiveColor) data.labelPassiveColor = self.textPassiveColor;
-        
+
         if( [data isKindOfClass:[TNCircularRadioButtonData class]] ){
             TNCircularRadioButtonData *rData = (TNCircularRadioButtonData *)data;
-            rData.borderActiveColor = self.controlActiveColor;
-            rData.borderPassiveColor = self.controlPassiveColor;
-            rData.circleActiveColor = self.controlActiveColor;
-            rData.circlePassiveColor = self.controlPassiveColor;
+            if (!rData.borderActiveColor) rData.borderActiveColor = self.controlActiveColor;
+            if (!rData.borderPassiveColor) rData.borderPassiveColor = self.controlPassiveColor;
+            if (!rData.circleActiveColor) rData.circleActiveColor = self.controlActiveColor;
+            if (!rData.circlePassiveColor) rData.circlePassiveColor = self.controlPassiveColor;
             radioButton = [[TNCircularRadioButton alloc] initWithData:rData];
         }else if( [data isKindOfClass:[TNRectangularRadioButtonData class]] ){
             TNRectangularRadioButtonData *rData = (TNRectangularRadioButtonData *)data;
-            rData.borderActiveColor = self.controlActiveColor;
-            rData.borderPassiveColor = self.controlPassiveColor;
-            rData.rectangleActiveColor = self.controlActiveColor;
-            rData.rectanglePassiveColor = self.controlPassiveColor;
+            if (!rData.borderActiveColor) rData.borderActiveColor = self.controlActiveColor;
+            if (!rData.borderPassiveColor) rData.borderPassiveColor = self.controlPassiveColor;
+            if (!rData.rectangleActiveColor) rData.rectangleActiveColor = self.controlActiveColor;
+            if (!rData.rectanglePassiveColor) rData.rectanglePassiveColor = self.controlPassiveColor;
             radioButton = [[TNRectangularRadioButton alloc] initWithData:rData];
         }else if( [data isKindOfClass:[TNImageRadioButtonData class]] ){
             radioButton = [[TNImageRadioButton alloc] initWithData:(TNImageRadioButtonData *)data];
         }
-        
+
         // If there is already a radio button selected ... deselect the current one
         if( self.selectedRadioButton ){
             data.selected = NO;
         }
-        
+
         data.tag = i;
-        
+
         radioButton.delegate = self;
         radioButton.multipleOptions = self.multipleOptions;
 
         CGRect frame;
-        
+
         if( self.layout == TNRadioButtonGroupLayoutHorizontal ){
             frame = CGRectMake(xPos, _itemsInsets.top, radioButton.frame.size.width, radioButton.frame.size.height);
         }else{
             frame = CGRectMake(_itemsInsets.left, yPos, radioButton.frame.size.width, radioButton.frame.size.height);
         }
-        
+
         radioButton.frame = frame;
         [self addSubview:radioButton];
-        
+
         xPos += radioButton.frame.size.width + self.marginBetweenItems;
         yPos += radioButton.frame.size.height + self.marginBetweenItems;
         maxHeight = MAX(maxHeight, radioButton.frame.size.height);
-        
+
         if( self.layout == TNRadioButtonGroupLayoutVertical ){
             maxHeight = yPos;
         }
-        
+
         if( data.selected ){
             self.selectedRadioButton = radioButton;
         }
-        
+
         [tmp addObject:radioButton];
         i++;
     }
-    
+
     self.widthOfComponent = xPos;
     self.heightOfComponent = maxHeight;
     self.radioButtons = [NSArray arrayWithArray:tmp];
@@ -129,52 +129,52 @@ NSString *const SELECTED_RADIO_BUTTON_CHANGED = @"selectedRadioButtonChanged";
 
 #pragma mark - TNRadioButtonDelegate methods
 - (void)radioButtonDidChange:(TNRadioButton *)radioButton {
-    
+
     for (TNRadioButton *rb in self.radioButtons) {
-        
+
         if( rb != radioButton && !self.multipleOptions){
             rb.data.selected = !radioButton.data.selected;
         }
 
         [rb selectWithAnimation:YES];
     }
-    
+
     self.selectedRadioButton = radioButton;
 }
 
 #pragma mark - Getters / Setters
 - (void)setSelectedRadioButton:(TNRadioButton *)selectedRadioButton {
-    
+
     if( _selectedRadioButton != selectedRadioButton ){
         _selectedRadioButton = selectedRadioButton;
-        
+
         [[NSNotificationCenter defaultCenter] postNotificationName:SELECTED_RADIO_BUTTON_CHANGED object:self];
     }
-    
+
 }
 
 - (void)setPosition:(CGPoint)position {
-    
+
     self.frame = CGRectMake(position.x, position.y, self.frame.size.width, self.frame.size.height);
-    
+
 }
 
 - (UIColor *)labelColor {
-    
+
     if( !_labelColor ){
         _labelColor = [UIColor blackColor];
     }
-    
+
     return _labelColor;
-    
+
 }
 
 - (UIFont *)labelFont {
-    
+
     if( !_labelFont ){
         _labelFont = [UIFont systemFontOfSize:14];
     }
-    
+
     return  _labelFont;
 }
 
